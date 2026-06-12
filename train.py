@@ -6,7 +6,7 @@ import pandas as pd
 from huggingface_hub import HfApi
 import config
 import data_manager as dm
-from causal_discovery import causal_score
+from causal_discovery import causal_score_aggregate
 
 def normalize_scores(score_dict):
     scores = np.array(list(score_dict.values()))
@@ -29,15 +29,7 @@ def run_for_window(returns, macro_df, window_days):
     macro_window = macro_df.loc[ret_window.index]
     if len(macro_window) < len(ret_window):
         return None
-    # Combine ETF returns and macro variables into one DataFrame
-    combined = pd.concat([ret_window, macro_window], axis=1)
-    # Indices: first ETF columns, then macro columns
-    etf_indices = list(range(len(ret_window.columns)))
-    macro_indices = list(range(len(ret_window.columns), len(combined.columns)))
-    scores_dict = causal_score(combined, macro_indices, etf_indices, alpha=config.ALPHA, max_cond_size=config.MAX_COND_SIZE)
-    # Map back to ticker names
-    tickers = ret_window.columns
-    raw_scores = {tickers[e]: scores_dict[e] for e in etf_indices}
+    raw_scores = causal_score_aggregate(ret_window, macro_window, mi_threshold=config.MI_THRESHOLD)
     norm_scores = normalize_scores(raw_scores)
     sorted_norm = sorted(norm_scores.items(), key=lambda x: x[1], reverse=True)
     top_etfs = [{"ticker": t, "causal_score_norm": s, "raw_score": raw_scores[t]} for t, s in sorted_norm[:config.TOP_N]]
@@ -58,8 +50,7 @@ def main():
     results = {
         "run_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "windows": config.WINDOWS,
-        "alpha": config.ALPHA,
-        "max_cond_size": config.MAX_COND_SIZE,
+        "mi_threshold": config.MI_THRESHOLD,
         "macro_vars": config.MACRO_VARS,
         "universes": {}
     }
