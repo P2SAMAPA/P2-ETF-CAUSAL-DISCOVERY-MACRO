@@ -6,7 +6,7 @@ from huggingface_hub import HfFileSystem
 import config
 from us_calendar import next_trading_day
 
-st.set_page_config(page_title="Causal Discovery with Macro-Augmented Graph (PC)", layout="wide")
+st.set_page_config(page_title="Causal Discovery with Macro-Augmented Graph", layout="wide")
 
 st.markdown("""
 <style>
@@ -32,17 +32,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<h1 style="text-align: center;">🔗 Causal Discovery with Macro-Augmented Graph (PC)</h1>', unsafe_allow_html=True)
-st.markdown('<p style="text-align: center;">PC algorithm – Conditional independence tests | Incoming causal edges from macro as score</p>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align: center;">🔗 Causal Discovery with Macro-Augmented Graph</h1>', unsafe_allow_html=True)
+st.markdown('<p style="text-align: center;">Mutual information‑based causal influence | Incoming macro edges as score</p>', unsafe_allow_html=True)
 
-st.sidebar.markdown("## 🧮 PC Algorithm")
+st.sidebar.markdown("## 🧮 Causal Discovery")
 if st.sidebar.button("🔄 Refresh Data", use_container_width=True, type="primary"):
     st.cache_data.clear()
     st.rerun()
 
 st.sidebar.markdown(f"**Run Date:** `{st.session_state.get('run_date', 'Not loaded')}`")
 st.sidebar.markdown(f"**Next Trading Day:** `{next_trading_day()}`")
-st.sidebar.markdown(f"**Alpha (α):** {config.ALPHA} | **Max cond size:** {config.MAX_COND_SIZE}")
+st.sidebar.markdown(f"**MI threshold:** {config.MI_THRESHOLD}")
 
 OUTPUT_REPO = config.OUTPUT_REPO
 HF_TOKEN = config.HF_TOKEN
@@ -110,14 +110,13 @@ def display_universe(universe_name, uni_data, window_data, window_label):
 tab1, tab2 = st.tabs(["📊 Best Window (Auto)", "🔍 Choose Window (Manual)"])
 
 with tab1:
-    st.header("🔗 Top ETFs by Incoming Causal Edges from Macro (Auto Best Window)")
+    st.header("🔗 Top ETFs by Causal Incoming Edges from Macro (Auto Best Window)")
     with st.expander("📖 Interpretation", expanded=False):
         st.markdown("""
-        - **PC algorithm** (Spirtes, Glymour, Scheines) discovers causal structure from observational data using conditional independence tests.
-        - We augment the graph with macro variables (VIX, DXY, yields) as separate nodes.
-        - The score for each ETF is the **number of directed causal edges from macro variables to that ETF**.
-        - High score → ETF is strongly causally driven by macro factors → potentially more predictable.
-        - Low score → ETF is driven by other ETFs or idiosyncratic factors.
+        - **Mutual information** measures non‑linear dependence between a macro variable and an ETF.
+        - The score is the number of macro variables (VIX, DXY, yields) with MI above a threshold.
+        - High score → ETF is strongly influenced by macro factors → more predictable from macro.
+        - Low score → ETF is driven by other factors.
         """)
     for universe_name, uni_data in data["universes"].items():
         if not uni_data or not uni_data.get("all_windows"):
@@ -150,4 +149,4 @@ with tab2:
             st.warning("No data for selected window.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("Causal Discovery | PC algorithm for macro‑augmented causal graph")
+st.sidebar.caption("Causal Discovery | Mutual information‑based causal influence")
