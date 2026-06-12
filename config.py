@@ -27,5 +27,5 @@ MACRO_VARS = [
 ]
 
 # Mutual information threshold for causal influence
-MI_THRESHOLD = 0.01
+MI_THRESHOLD = 0.02
 TOP_N = 3
