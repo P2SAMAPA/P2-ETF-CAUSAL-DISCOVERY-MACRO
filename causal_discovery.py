@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd  # added missing import
 from sklearn.feature_selection import mutual_info_regression
 
 def causal_score(data, macro_indices, etf_indices, mi_threshold=0.01):
