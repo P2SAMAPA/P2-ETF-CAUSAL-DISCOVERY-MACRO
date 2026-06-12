@@ -19,14 +19,13 @@ UNIVERSES = {
     ]
 }
 
-# All available macro variables (included as nodes)
+# All available macro variables
 MACRO_VARS = [
     "VIX", "DXY", "T10Y2Y", "TBILL_3M",
     "DGS1MO", "DGS3MO", "DGS6MO", "DGS1", "DGS2", "DGS5", "DGS7",
     "DGS10", "DGS20", "DGS30"
 ]
 
-# PC algorithm parameters
-ALPHA = 0.05                # significance level for conditional independence tests
-MAX_COND_SIZE = 3           # maximum size of conditioning set
+# Mutual information threshold for causal influence
+MI_THRESHOLD = 0.01
 TOP_N = 3
